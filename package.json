@@ -14,6 +14,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "deployprod": "npm run build && zip -r dist.zip build && scp dist.zip the-bear:/home/ubuntu/retrovibe/ && ssh the-bear -t \"cd retrovibe && rm -r build/ && unzip dist.zip\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

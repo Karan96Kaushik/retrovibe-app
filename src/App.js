@@ -1,7 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes, createGlobalStyle } from 'styled-components';
+import styled, { keyframes, createGlobalStyle, ThemeProvider } from 'styled-components';
 
-// Add global styles
+// Add theme definitions
+const lightTheme = {
+  background: '#FFF8E1',
+  text: '#3B3A30',
+  primary: '#DC143C',
+  secondary: '#008080',
+  accent: '#FFC107',
+  cardBackground: '#FFF8E1',
+  cardBorder: '#008080',
+};
+
+const darkTheme = {
+  background: '#1E1E1E',
+  text: '#E0E0E0',
+  primary: '#FF6B6B',
+  secondary: '#4ECDC4',
+  accent: '#FFD93D',
+  cardBackground: '#2C2C2C',
+  cardBorder: '#4ECDC4',
+};
+
+// Update GlobalStyle
 const GlobalStyle = createGlobalStyle`
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap');
 
@@ -9,8 +30,8 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     font-family: 'Cormorant Garamond', serif;
-    background-color: #FFF8E1;
-    color: #3B3A30;
+    background-color: ${props => props.theme.background};
+    color: ${props => props.theme.text};
   }
 `;
 
@@ -68,7 +89,7 @@ const Page = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 248, 225, 0.7);
+    background-color: ${props => props.theme.background}CC;
   }
 `;
 
@@ -87,8 +108,8 @@ const Header = styled.header`
 const Title = styled.h1`
   font-family: 'Playfair Display', serif;
   font-size: 72px;
-  color: #DC143C;
-  text-shadow: 3px 3px #FFC107, 6px 6px #DC143C;
+  color: ${props => props.theme.primary};
+  text-shadow: 3px 3px ${props => props.theme.accent}, 6px 6px ${props => props.theme.primary};
   margin-bottom: 10px;
   letter-spacing: 2px;
   animation: ${flicker} 5s infinite;
@@ -101,13 +122,13 @@ const Title = styled.h1`
     right: 0;
     font-size: 18px;
     font-style: italic;
-    color: #008080;
+    color: ${props => props.theme.secondary};
   }
 `;
 
 const Subtitle = styled.h2`
   font-size: 24px;
-  color: #008080;
+  color: ${props => props.theme.secondary};
   font-weight: 400;
   font-style: italic;
   position: relative;
@@ -115,7 +136,7 @@ const Subtitle = styled.h2`
   
   &::before, &::after {
     content: '✦';
-    color: #DC143C;
+    color: ${props => props.theme.primary};
     margin: 0 10px;
   }
 `;
@@ -128,22 +149,22 @@ const MainContent = styled.main`
 `;
 
 const AdCard = styled.div`
-  background-color: #FFF8E1;
-  background-image: linear-gradient(45deg, #FFF8E1 25%, #FFEFD5 25%, #FFEFD5 50%, #FFF8E1 50%, #FFF8E1 75%, #FFEFD5 75%, #FFEFD5 100%);
+  background-color: ${props => props.theme.cardBackground};
+  background-image: linear-gradient(45deg, ${props => props.theme.cardBackground} 25%, ${props => props.theme.accent}22 25%, ${props => props.theme.accent}22 50%, ${props => props.theme.cardBackground} 50%, ${props => props.theme.cardBackground} 75%, ${props => props.theme.accent}22 75%, ${props => props.theme.accent}22 100%);
   background-size: 40px 40px;
-  border: 2px solid #008080;
+  border: 2px solid ${props => props.theme.cardBorder};
   border-radius: 10px;
   padding: 30px;
   width: 300px;
   text-align: center;
-  box-shadow: 5px 5px 0px #FFC107;
+  box-shadow: 5px 5px 0px ${props => props.theme.accent};
   transition: all 0.5s ease;
   animation: ${slideIn} 0.5s ease-out;
   position: relative;
 
   &:hover {
     transform: translateY(-10px) rotate(2deg);
-    box-shadow: 12px 12px 0px #FFC107;
+    box-shadow: 12px 12px 0px ${props => props.theme.accent};
   }
 
   &::after {
@@ -153,7 +174,7 @@ const AdCard = styled.div`
     left: 10px;
     right: 10px;
     bottom: 10px;
-    border: 1px dashed #008080;
+    border: 1px dashed ${props => props.theme.cardBorder};
     pointer-events: none;
   }
 `;
@@ -163,14 +184,14 @@ const AdImage = styled.img`
   height: 200px;
   object-fit: cover;
   margin-bottom: 20px;
-  border: 1px solid #3B3A30;
-  filter: sepia(30%);
+  border: 1px solid ${props => props.theme.text};
+  filter: ${props => props.theme === darkTheme ? 'brightness(0.8) contrast(1.2)' : 'sepia(30%)'};
 `;
 
 const AdTitle = styled.h3`
   font-family: 'Playfair Display', serif;
   font-size: 28px;
-  color: #DC143C;
+  color: ${props => props.theme.primary};
   margin-bottom: 15px;
   text-transform: uppercase;
 `;
@@ -178,12 +199,12 @@ const AdTitle = styled.h3`
 const AdDescription = styled.p`
   font-size: 16px;
   line-height: 1.6;
-  color: #3B3A30;
+  color: ${props => props.theme.text};
 `;
 
 const Button = styled.button`
-  background-color: #008080;
-  color: #FFF8E1;
+  background-color: ${props => props.theme.secondary};
+  color: ${props => props.theme.background};
   border: none;
   padding: 12px 24px;
   font-size: 18px;
@@ -217,7 +238,7 @@ const Button = styled.button`
   }
 
   &:hover {
-    background-color: #006666;
+    background-color: ${props => props.theme.primary};
   }
 `;
 
@@ -225,7 +246,7 @@ const Footer = styled.footer`
   text-align: center;
   margin-top: 60px;
   font-size: 14px;
-  color: #3B3A30;
+  color: ${props => props.theme.text};
   font-style: italic;
 `;
 
@@ -237,7 +258,7 @@ const RotatingLogo = styled.img`
 `;
 
 const FeaturedSection = styled.section`
-  background-color: #FFC107;
+  background-color: ${props => props.theme.accent}90;
   padding: 60px 0;
   margin: 60px 0;
   text-align: center;
@@ -246,7 +267,7 @@ const FeaturedSection = styled.section`
 const FeaturedTitle = styled.h2`
   font-family: 'Playfair Display', serif;
   font-size: 48px;
-  color: #DC143C;
+  color: ${props => props.theme.primary};
   margin-bottom: 30px;
 `;
 
@@ -272,7 +293,7 @@ const CarouselImage = styled(AdImage)`
 `;
 
 const TestimonialSection = styled.section`
-  background-color: #FFF8E1;
+  background-color: ${props => props.theme.background};
   padding: 80px 0;
   text-align: center;
   position: relative;
@@ -285,8 +306,8 @@ const TestimonialSection = styled.section`
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle, #FFC107 10%, transparent 10%),
-                radial-gradient(circle, #FFC107 10%, transparent 10%);
+    background: radial-gradient(circle, ${props => props.theme.accent}22 10%, transparent 10%),
+                radial-gradient(circle, ${props => props.theme.accent}22 10%, transparent 10%);
     background-size: 30px 30px;
     background-position: 0 0, 15px 15px;
     opacity: 0.1;
@@ -296,7 +317,7 @@ const TestimonialSection = styled.section`
 const TestimonialTitle = styled.h2`
   font-family: 'Playfair Display', serif;
   font-size: 48px;
-  color: #DC143C;
+  color: ${props => props.theme.primary};
   margin-bottom: 50px;
   position: relative;
   display: inline-block;
@@ -309,7 +330,7 @@ const TestimonialTitle = styled.h2`
     transform: translateX(-50%);
     width: 100px;
     height: 3px;
-    background-color: #008080;
+    background-color: ${props => props.theme.secondary};
   }
 `;
 
@@ -330,7 +351,7 @@ const TestimonialSlide = styled.div`
 const Testimonial = styled.blockquote`
   font-style: italic;
   font-size: 24px;
-  color: #3B3A30;
+  color: ${props => props.theme.text};
   margin: 0 auto 20px;
   padding: 0 20px;
   position: relative;
@@ -338,7 +359,7 @@ const Testimonial = styled.blockquote`
   &::before, &::after {
     content: '"';
     font-size: 72px;
-    color: #DC143C;
+    color: ${props => props.theme.primary};
     opacity: 0.2;
     position: absolute;
   }
@@ -357,7 +378,7 @@ const Testimonial = styled.blockquote`
 const Author = styled.cite`
   font-style: normal;
   font-weight: bold;
-  color: #008080;
+  color: ${props => props.theme.secondary};
   display: block;
   margin-top: 20px;
 `;
@@ -372,21 +393,21 @@ const Dot = styled.button`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: ${props => props.active ? '#DC143C' : '#FFC107'};
+  background-color: ${props => props.active ? props.theme.primary : props.theme.accent};
   margin: 0 5px;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: #DC143C;
+    background-color: ${props => props.theme.primary};
   }
 `;
 
 const NewsletterSection = styled.section`
-  background-color: #008080;
-  color: #FFF8E1;
-  padding: 80px 0;
+  background-color: ${props => props.theme.primary};
+  color: ${props => props.theme.background};
+  padding: 100px 0;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -398,17 +419,36 @@ const NewsletterSection = styled.section`
     left: -50%;
     right: -50%;
     bottom: -50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-    animation: ${rotate} 20s linear infinite;
+    background: radial-gradient(circle, ${props => props.theme.accent}33 0%, transparent 70%);
+    animation: ${rotate} 30s linear infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      ${props => props.theme.primary},
+      ${props => props.theme.primary} 10px,
+      ${props => props.theme.secondary}22 10px,
+      ${props => props.theme.secondary}22 20px
+    );
+    opacity: 0.1;
   }
 `;
 
 const NewsletterTitle = styled.h2`
   font-family: 'Playfair Display', serif;
-  font-size: 48px;
+  font-size: 56px;
   margin-bottom: 30px;
   position: relative;
   z-index: 1;
+  color: ${props => props.theme.background};
+  text-shadow: 2px 2px ${props => props.theme.accent};
 `;
 
 const NewsletterForm = styled.form`
@@ -418,36 +458,42 @@ const NewsletterForm = styled.form`
   margin-top: 40px;
   position: relative;
   z-index: 1;
-  max-width: 500px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 `;
 
 const NewsletterInput = styled.input`
   flex-grow: 1;
-  padding: 12px 15px;
+  padding: 15px 20px;
   font-size: 18px;
   border: none;
-  border-radius: 25px 0 0 25px;
-  color: #3B3A30;
+  border-radius: 30px 0 0 30px;
+  color: ${props => props.theme.text};
+  background-color: ${props => props.theme.background};
   outline: none;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 0 2px ${props => props.theme.accent};
 
   &:focus {
-    box-shadow: 0 0 0 2px #FFC107;
+    box-shadow: inset 0 0 0 2px ${props => props.theme.secondary};
   }
 `;
 
 const NewsletterButton = styled(Button)`
-  background-color: #DC143C;
-  border-radius: 0 25px 25px 0;
-  padding: 12px 30px;
+  background-color: ${props => props.theme.accent};
+  border-radius: 0 30px 30px 0;
+  padding: 15px 30px;
   font-size: 18px;
   transition: all 0.3s ease;
   white-space: nowrap;
+  color: ${props => props.theme.background};
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
 
   &:hover {
-    background-color: #B01030;
+    background-color: ${props => props.theme.secondary};
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
@@ -461,13 +507,22 @@ const TypewriterText = styled.div`
   animation: ${typewriter} 3.5s steps(40, end), ${flicker} 0.5s step-end infinite alternate;
   max-width: 800px;
   font-size: 24px;
-  color: #FFC107;
+  color: ${props => props.theme.background};
+  text-shadow: 1px 1px ${props => props.theme.accent};
+  margin-bottom: 30px;
+`;
+
+const NewsletterIcon = styled.i`
+  font-size: 48px;
+  color: ${props => props.theme.background};
+  margin-bottom: 20px;
+  animation: ${bounce} 2s infinite;
 `;
 
 // Add new styled components
 const RetroSection = styled.section`
-  background-color: #DC143C;
-  color: #FFF8E1;
+  background-color: ${props => props.theme.primary};
+  color: ${props => props.theme.background};
   padding: 80px 0;
   text-align: center;
   position: relative;
@@ -482,10 +537,10 @@ const RetroSection = styled.section`
     bottom: 0;
     background: repeating-linear-gradient(
       45deg,
-      #DC143C,
-      #DC143C 10px,
-      #B01030 10px,
-      #B01030 20px
+      ${props => props.theme.primary},
+      ${props => props.theme.primary} 10px,
+      ${props => props.theme.secondary}88 10px,
+      ${props => props.theme.secondary}88 20px
     );
     opacity: 0.1;
   }
@@ -495,7 +550,7 @@ const RetroTitle = styled.h2`
   font-family: 'Playfair Display', serif;
   font-size: 64px;
   margin-bottom: 30px;
-  text-shadow: 3px 3px #FFC107;
+  text-shadow: 3px 3px ${props => props.theme.accent};
   position: relative;
   z-index: 1;
 `;
@@ -510,21 +565,38 @@ const RetroText = styled.p`
 `;
 
 const ShimmerButton = styled(Button)`
-  background: linear-gradient(to right, #008080 0%, #00CED1 10%, #008080 20%);
+  background: linear-gradient(to right, ${props => props.theme.secondary} 0%, ${props => props.theme.accent} 10%, ${props => props.theme.secondary} 20%);
   background-size: 200% 100%;
   animation: ${shimmer} 3s infinite;
-  border: 2px solid #FFF8E1;
+  border: 2px solid ${props => props.theme.background};
   font-weight: bold;
   letter-spacing: 2px;
 `;
 
 const BouncingIcon = styled.i`
   font-size: 48px;
-  color: #FFC107;
+  color: ${props => props.theme.accent};
   animation: ${bounce} 2s infinite;
   display: block;
   margin-top: 30px;
 `;
+
+// Add useTheme hook
+const useTheme = () => {
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => setTheme(mediaQuery.matches ? 'dark' : 'light');
+    
+    mediaQuery.addListener(handleChange);
+    handleChange();
+
+    return () => mediaQuery.removeListener(handleChange);
+  }, []);
+
+  return theme === 'light' ? lightTheme : darkTheme;
+};
 
 const LandingPage = () => {
   const [email, setEmail] = useState('');
@@ -560,8 +632,10 @@ const LandingPage = () => {
     setEmail('');
   };
 
+  const theme = useTheme();
+
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Page>
         <Content>
@@ -659,17 +733,18 @@ const LandingPage = () => {
           </TestimonialSection>
 
           <NewsletterSection>
-            <NewsletterTitle>Stay Updated with Industry Trends</NewsletterTitle>
-            <TypewriterText>Subscribe to our newsletter for insights and updates!</TypewriterText>
+            <NewsletterIcon className="fas fa-envelope-open-text" />
+            <NewsletterTitle>Stay Ahead of the Curve</NewsletterTitle>
+            <TypewriterText>Subscribe for exclusive insights and trends!</TypewriterText>
             <NewsletterForm onSubmit={handleSubmit}>
               <NewsletterInput 
                 type="email" 
-                placeholder="Enter your email" 
+                placeholder="Enter your email address" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)}
                 required 
               />
-              <NewsletterButton type="submit">Subscribe</NewsletterButton>
+              <NewsletterButton type="submit">Join Now</NewsletterButton>
             </NewsletterForm>
           </NewsletterSection>
 
@@ -679,7 +754,7 @@ const LandingPage = () => {
           </Footer>
         </Content>
       </Page>
-    </>
+    </ThemeProvider>
   );
 };
 
