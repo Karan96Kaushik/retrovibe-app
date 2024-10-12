@@ -585,15 +585,15 @@ const BouncingIcon = styled.i`
 const useTheme = () => {
   const [theme, setTheme] = useState('light');
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => setTheme(mediaQuery.matches ? 'dark' : 'light');
+  // useEffect(() => {
+  //   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  //   const handleChange = () => setTheme(mediaQuery.matches ? 'dark' : 'light');
     
-    mediaQuery.addListener(handleChange);
-    handleChange();
+  //   mediaQuery.addListener(handleChange);
+  //   handleChange();
 
-    return () => mediaQuery.removeListener(handleChange);
-  }, []);
+  //   return () => mediaQuery.removeListener(handleChange);
+  // }, []);
 
   return theme === 'light' ? lightTheme : darkTheme;
 };
