@@ -1,761 +1,160 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled, { keyframes, createGlobalStyle, ThemeProvider } from 'styled-components';
-
-// Add theme definitions
-const lightTheme = {
-  background: '#FFF8E1',
-  text: '#3B3A30',
-  primary: '#DC143C',
-  secondary: '#008080',
-  accent: '#FFC107',
-  cardBackground: '#FFF8E1',
-  cardBorder: '#008080',
-};
-
-const darkTheme = {
-  background: '#1E1E1E',
-  text: '#E0E0E0',
-  primary: '#FF6B6B',
-  secondary: '#4ECDC4',
-  accent: '#FFD93D',
-  cardBackground: '#2C2C2C',
-  cardBorder: '#4ECDC4',
-};
-
-// Update GlobalStyle
-const GlobalStyle = createGlobalStyle`
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap');
-
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Cormorant Garamond', serif;
-    background-color: ${props => props.theme.background};
-    color: ${props => props.theme.text};
-  }
-`;
-
-// Update keyframe animations
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
-
-const slideIn = keyframes`
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-`;
-
-const flicker = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-`;
-
-const rotate = keyframes`
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-`;
-
-const typewriter = keyframes`
-  from { width: 0; }
-  to { width: 100%; }
-`;
-
-// Add new keyframe animations
-const shimmer = keyframes`
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-`;
-
-const bounce = keyframes`
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-30px); }
-  60% { transform: translateY(-15px); }
-`;
-
-// Update styled components
-const Page = styled.div`
-  background-image: url('/images/drinks.jpg');
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  min-height: 100vh;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: ${props => props.theme.background}CC;
-  }
-`;
-
-const Content = styled.div`
-  position: relative;
-  z-index: 1;
-  padding: 40px;
-`;
-
-const Header = styled.header`
-  text-align: center;
-  margin-bottom: 60px;
-  animation: ${fadeIn} 1.5s ease-out;
-`;
-
-const Title = styled.h1`
-  font-family: 'Playfair Display', serif;
-  font-size: 72px;
-  color: ${props => props.theme.primary};
-  text-shadow: 3px 3px ${props => props.theme.accent}, 6px 6px ${props => props.theme.primary};
-  margin-bottom: 10px;
-  letter-spacing: 2px;
-  animation: ${flicker} 5s infinite;
-  position: relative;
-  
-  &::after {
-    content: 'Est. 1985';
-    position: absolute;
-    bottom: -20px;
-    right: 0;
-    font-size: 18px;
-    font-style: italic;
-    color: ${props => props.theme.secondary};
-  }
-`;
-
-const Subtitle = styled.h2`
-  font-size: 24px;
-  color: ${props => props.theme.secondary};
-  font-weight: 400;
-  font-style: italic;
-  position: relative;
-  display: inline-block;
-  
-  &::before, &::after {
-    content: '✦';
-    color: ${props => props.theme.primary};
-    margin: 0 10px;
-  }
-`;
-
-const MainContent = styled.main`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 40px;
-`;
-
-const AdCard = styled.div`
-  background-color: ${props => props.theme.cardBackground};
-  background-image: linear-gradient(45deg, ${props => props.theme.cardBackground} 25%, ${props => props.theme.accent}22 25%, ${props => props.theme.accent}22 50%, ${props => props.theme.cardBackground} 50%, ${props => props.theme.cardBackground} 75%, ${props => props.theme.accent}22 75%, ${props => props.theme.accent}22 100%);
-  background-size: 40px 40px;
-  border: 2px solid ${props => props.theme.cardBorder};
-  border-radius: 10px;
-  padding: 30px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 5px 5px 0px ${props => props.theme.accent};
-  transition: all 0.5s ease;
-  animation: ${slideIn} 0.5s ease-out;
-  position: relative;
-
-  &:hover {
-    transform: translateY(-10px) rotate(2deg);
-    box-shadow: 12px 12px 0px ${props => props.theme.accent};
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 1px dashed ${props => props.theme.cardBorder};
-    pointer-events: none;
-  }
-`;
-
-const AdImage = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  margin-bottom: 20px;
-  border: 1px solid ${props => props.theme.text};
-  filter: ${props => props.theme === darkTheme ? 'brightness(0.8) contrast(1.2)' : 'sepia(30%)'};
-`;
-
-const AdTitle = styled.h3`
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  color: ${props => props.theme.primary};
-  margin-bottom: 15px;
-  text-transform: uppercase;
-`;
-
-const AdDescription = styled.p`
-  font-size: 16px;
-  line-height: 1.6;
-  color: ${props => props.theme.text};
-`;
-
-const Button = styled.button`
-  background-color: ${props => props.theme.secondary};
-  color: ${props => props.theme.background};
-  border: none;
-  padding: 12px 24px;
-  font-size: 18px;
-  font-family: 'Cormorant Garamond', serif;
-  cursor: pointer;
-  margin-top: 20px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      120deg,
-      transparent,
-      rgba(255, 248, 225, 0.3),
-      transparent
-    );
-    transition: all 0.5s;
-  }
-
-  &:hover:before {
-    left: 100%;
-  }
-
-  &:hover {
-    background-color: ${props => props.theme.primary};
-  }
-`;
-
-const Footer = styled.footer`
-  text-align: center;
-  margin-top: 60px;
-  font-size: 14px;
-  color: ${props => props.theme.text};
-  font-style: italic;
-`;
-
-const RotatingLogo = styled.img`
-  width: 50px;
-  height: 50px;
-  animation: ${rotate} 10s linear infinite;
-  filter: sepia(50%);
-`;
-
-const FeaturedSection = styled.section`
-  background-color: ${props => props.theme.accent}90;
-  padding: 60px 0;
-  margin: 60px 0;
-  text-align: center;
-`;
-
-const FeaturedTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 48px;
-  color: ${props => props.theme.primary};
-  margin-bottom: 30px;
-`;
-
-const Carousel = styled.div`
-  display: flex;
-  overflow-x: auto;
-  padding: 20px 0;
-  scroll-behavior: smooth;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const CarouselItem = styled.div`
-  flex: 0 0 auto;
-  width: 250px;
-  margin: 0 20px;
-`;
-
-const CarouselImage = styled(AdImage)`
-  height: 150px;
-`;
-
-const TestimonialSection = styled.section`
-  background-color: ${props => props.theme.background};
-  padding: 80px 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle, ${props => props.theme.accent}22 10%, transparent 10%),
-                radial-gradient(circle, ${props => props.theme.accent}22 10%, transparent 10%);
-    background-size: 30px 30px;
-    background-position: 0 0, 15px 15px;
-    opacity: 0.1;
-  }
-`;
-
-const TestimonialTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 48px;
-  color: ${props => props.theme.primary};
-  margin-bottom: 50px;
-  position: relative;
-  display: inline-block;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 3px;
-    background-color: ${props => props.theme.secondary};
-  }
-`;
-
-const TestimonialCarousel = styled.div`
-  display: flex;
-  overflow: hidden;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-`;
-
-const TestimonialSlide = styled.div`
-  flex: 0 0 100%;
-  opacity: ${props => props.active ? 1 : 0};
-  transition: opacity 0.5s ease-in-out;
-`;
-
-const Testimonial = styled.blockquote`
-  font-style: italic;
-  font-size: 24px;
-  color: ${props => props.theme.text};
-  margin: 0 auto 20px;
-  padding: 0 20px;
-  position: relative;
-
-  &::before, &::after {
-    content: '"';
-    font-size: 72px;
-    color: ${props => props.theme.primary};
-    opacity: 0.2;
-    position: absolute;
-  }
-
-  &::before {
-    top: -20px;
-    left: -10px;
-  }
-
-  &::after {
-    bottom: -50px;
-    right: -10px;
-  }
-`;
-
-const Author = styled.cite`
-  font-style: normal;
-  font-weight: bold;
-  color: ${props => props.theme.secondary};
-  display: block;
-  margin-top: 20px;
-`;
-
-const TestimonialDots = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-`;
-
-const Dot = styled.button`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: ${props => props.active ? props.theme.primary : props.theme.accent};
-  margin: 0 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: ${props => props.theme.primary};
-  }
-`;
-
-const NewsletterSection = styled.section`
-  background-color: ${props => props.theme.primary};
-  color: ${props => props.theme.background};
-  padding: 100px 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    right: -50%;
-    bottom: -50%;
-    background: radial-gradient(circle, ${props => props.theme.accent}33 0%, transparent 70%);
-    animation: ${rotate} 30s linear infinite;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      ${props => props.theme.primary},
-      ${props => props.theme.primary} 10px,
-      ${props => props.theme.secondary}22 10px,
-      ${props => props.theme.secondary}22 20px
-    );
-    opacity: 0.1;
-  }
-`;
-
-const NewsletterTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 56px;
-  margin-bottom: 30px;
-  position: relative;
-  z-index: 1;
-  color: ${props => props.theme.background};
-  text-shadow: 2px 2px ${props => props.theme.accent};
-`;
-
-const NewsletterForm = styled.form`
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  margin-top: 40px;
-  position: relative;
-  z-index: 1;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const NewsletterInput = styled.input`
-  flex-grow: 1;
-  padding: 15px 20px;
-  font-size: 18px;
-  border: none;
-  border-radius: 30px 0 0 30px;
-  color: ${props => props.theme.text};
-  background-color: ${props => props.theme.background};
-  outline: none;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 0 0 2px ${props => props.theme.accent};
-
-  &:focus {
-    box-shadow: inset 0 0 0 2px ${props => props.theme.secondary};
-  }
-`;
-
-const NewsletterButton = styled(Button)`
-  background-color: ${props => props.theme.accent};
-  border-radius: 0 30px 30px 0;
-  padding: 15px 30px;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  color: ${props => props.theme.background};
-  text-transform: uppercase;
-  font-weight: bold;
-  letter-spacing: 1px;
-
-  &:hover {
-    background-color: ${props => props.theme.secondary};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const TypewriterText = styled.div`
-  overflow: hidden;
-  white-space: nowrap;
-  margin: 0 auto;
-  letter-spacing: 0.15em;
-  animation: ${typewriter} 3.5s steps(40, end), ${flicker} 0.5s step-end infinite alternate;
-  max-width: 800px;
-  font-size: 24px;
-  color: ${props => props.theme.background};
-  text-shadow: 1px 1px ${props => props.theme.accent};
-  margin-bottom: 30px;
-`;
-
-const NewsletterIcon = styled.i`
-  font-size: 48px;
-  color: ${props => props.theme.background};
-  margin-bottom: 20px;
-  animation: ${bounce} 2s infinite;
-`;
-
-// Add new styled components
-const RetroSection = styled.section`
-  background-color: ${props => props.theme.primary};
-  color: ${props => props.theme.background};
-  padding: 80px 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      45deg,
-      ${props => props.theme.primary},
-      ${props => props.theme.primary} 10px,
-      ${props => props.theme.secondary}88 10px,
-      ${props => props.theme.secondary}88 20px
-    );
-    opacity: 0.1;
-  }
-`;
-
-const RetroTitle = styled.h2`
-  font-family: 'Playfair Display', serif;
-  font-size: 64px;
-  margin-bottom: 30px;
-  text-shadow: 3px 3px ${props => props.theme.accent};
-  position: relative;
-  z-index: 1;
-`;
-
-const RetroText = styled.p`
-  font-size: 24px;
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.6;
-  position: relative;
-  z-index: 1;
-`;
-
-const ShimmerButton = styled(Button)`
-  background: linear-gradient(to right, ${props => props.theme.secondary} 0%, ${props => props.theme.accent} 10%, ${props => props.theme.secondary} 20%);
-  background-size: 200% 100%;
-  animation: ${shimmer} 3s infinite;
-  border: 2px solid ${props => props.theme.background};
-  font-weight: bold;
-  letter-spacing: 2px;
-`;
-
-const BouncingIcon = styled.i`
-  font-size: 48px;
-  color: ${props => props.theme.accent};
-  animation: ${bounce} 2s infinite;
-  display: block;
-  margin-top: 30px;
-`;
-
-// Add useTheme hook
-const useTheme = () => {
-  const [theme, setTheme] = useState('light');
-
-  // useEffect(() => {
-  //   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  //   const handleChange = () => setTheme(mediaQuery.matches ? 'dark' : 'light');
-    
-  //   mediaQuery.addListener(handleChange);
-  //   handleChange();
-
-  //   return () => mediaQuery.removeListener(handleChange);
-  // }, []);
-
-  return theme === 'light' ? lightTheme : darkTheme;
-};
-
-const LandingPage = () => {
-  const [email, setEmail] = useState('');
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const testimonialRef = useRef(null);
-
-  const testimonials = [
-    {
-      text: "Creative Minds Agency has transformed our brand presence online. Their innovative approach and dedication to excellence are unmatched!",
-      author: "Jane Smith, CEO of Tech Innovators"
-    },
-    {
-      text: "The retro-inspired designs they created for our campaign were a huge hit. It's rare to find an agency that can blend nostalgia with modern trends so seamlessly.",
-      author: "John Doe, Marketing Director at Vintage Vibes"
-    },
-    {
-      text: "Their attention to detail and creative problem-solving skills have consistently exceeded our expectations. A true partner in our success!",
-      author: "Emily Johnson, Founder of EcoStyle"
-    }
-  ];
+import React, { useEffect, useState } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`Thank you for subscribing with email: ${email}`);
-    setEmail('');
-  };
-
-  const theme = useTheme();
+    AOS.init({
+      duration: 1000,
+      easing: 'ease-out-cubic',
+      once: true,
+    });
+  }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <Page>
-        <Content>
-          <Header>
-            <Title>Creative Minds Agency</Title>
-            <Subtitle>Innovative Solutions for Your Brand</Subtitle>
-          </Header>
+    <div className="bg-black text-white min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">très chic</h1>
+          <button
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+          <ul className={`md:flex space-x-6 ${isMenuOpen ? 'block' : 'hidden'}`}>
+            <li><a href="#" className="hover:text-gray-300 transition-colors">Home</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition-colors">Collection</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition-colors">About</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition-colors">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
 
-          <MainContent>
-            <AdCard>
-              <AdImage src="/images/cosmo.jpg" alt="Brand Strategy" />
-              <AdTitle>Brand Strategy</AdTitle>
-              <AdDescription>
-                Elevate your brand with our comprehensive strategy services, tailored to your unique vision.
-              </AdDescription>
-              <Button>Discover More</Button>
-            </AdCard>
+      {/* Hero Section */}
+      <header className="relative h-screen flex items-center justify-center overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+        >
+          <source src="/fashion.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black opacity-70"></div>
+        <div className="relative z-10 text-center" data-aos="fade-up">
+          <h1 className="text-7xl font-bold mb-4 text-white">
+            très chic
+          </h1>
+          <p className="text-2xl italic text-gray-300">
+            Embrace the darkness, embody the style
+          </p>
+          <button className="mt-8 px-8 py-3 bg-white text-black rounded-full hover:bg-gray-200 transition-colors duration-300">
+            Explore Fall 2024 Collection
+          </button>
+        </div>
+      </header>
 
-            <AdCard>
-              <AdImage src="/images/bohemia.jpg" alt="Digital Marketing" />
-              <AdTitle>Digital Marketing</AdTitle>
-              <AdDescription>
-                Reach your audience with precision through our cutting-edge digital marketing solutions.
-              </AdDescription>
-              <Button>Get Started</Button>
-            </AdCard>
-
-            <AdCard>
-              <AdImage src="/images/photo.jpg" alt="Creative Design" />
-              <AdTitle>Creative Design</AdTitle>
-              <AdDescription>
-                Transform your ideas into stunning visuals with our expert design team.
-              </AdDescription>
-              <Button>See Our Work</Button>
-            </AdCard>
-          </MainContent>
-          <br></br>
-          <br></br>
-          <RetroSection>
-            <RetroTitle>Timeless Creativity</RetroTitle>
-            <RetroText>
-              Since 1985, we've been blending classic design principles with cutting-edge techniques. Our retro-inspired approach brings a unique flair to modern branding.
-            </RetroText>
-            <ShimmerButton>Explore Our Legacy</ShimmerButton>
-            <BouncingIcon className="fas fa-chevron-down" />
-          </RetroSection>
-
-          <FeaturedSection>
-            <FeaturedTitle>Our Expertise</FeaturedTitle>
-            <Carousel>
-              <CarouselItem>
-                <CarouselImage src="/images/coke.jpg" alt="Social Media Management" />
-                <AdTitle>Social Media Management</AdTitle>
-                <Button>Learn More</Button>
-              </CarouselItem>
-              <CarouselItem>
-                <CarouselImage src="/images/shoes.jpg" alt="Content Creation" />
-                <AdTitle>Content Creation</AdTitle>
-                <Button>Explore Services</Button>
-              </CarouselItem>
-              <CarouselItem>
-                <CarouselImage src="/images/paris.jpg" alt="Analytics & Insights" />
-                <AdTitle>Analytics & Insights</AdTitle>
-                <Button>View Details</Button>
-              </CarouselItem>
-              {/* Add more CarouselItems as needed */}
-            </Carousel>
-          </FeaturedSection>
-
-          <TestimonialSection>
-            <TestimonialTitle>Client Testimonials</TestimonialTitle>
-            <TestimonialCarousel ref={testimonialRef}>
-              {testimonials.map((testimonial, index) => (
-                <TestimonialSlide
-                  key={index}
-                  active={index === activeTestimonial}
-                  style={{ transform: `translateX(-${activeTestimonial * 100}%)` }}
-                >
-                  <Testimonial>
-                    {testimonial.text}
-                    <Author>- {testimonial.author}</Author>
-                  </Testimonial>
-                </TestimonialSlide>
-              ))}
-            </TestimonialCarousel>
-            <TestimonialDots>
-              {testimonials.map((_, index) => (
-                <Dot
-                  key={index}
-                  active={index === activeTestimonial}
-                  onClick={() => setActiveTestimonial(index)}
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-16">
+        {/* Featured Collection */}
+        <section className="mb-24">
+          <h2 className="text-4xl font-semibold mb-12 text-center" data-aos="fade-up">Fall 2024 Collection</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { name: "Midnight Velvet Gown", price: "£1,299" },
+              { name: "Obsidian Leather Jacket", price: "£899" },
+              { name: "Onyx Silk Blouse", price: "£459" }
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="relative overflow-hidden group"
+                data-aos="fade-up"
+                data-aos-delay={index * 100}
+              >
+                <img
+                  src={`/images/fashion-${index + 1}.webp`}
+                  alt={item.name}
+                  className="w-full h-120 object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-              ))}
-            </TestimonialDots>
-          </TestimonialSection>
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                  <p className="text-lg mb-4">{item.price}</p>
+                  <button className="bg-white text-black px-6 py-3 rounded-full hover:bg-gray-200 transition-colors duration-300">
+                    Shop Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <NewsletterSection>
-            <NewsletterIcon className="fas fa-envelope-open-text" />
-            <NewsletterTitle>Stay Ahead of the Curve</NewsletterTitle>
-            <TypewriterText>Subscribe for exclusive insights and trends!</TypewriterText>
-            <NewsletterForm onSubmit={handleSubmit}>
-              <NewsletterInput 
-                type="email" 
-                placeholder="Enter your email address" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)}
-                required 
+        {/* About Section */}
+        <section className="mb-24 relative py-24">
+          <div className="absolute inset-0 bg-gray-900 transform -skew-y-6"></div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center">
+            <div className="md:w-1/2 mb-8 md:mb-0" data-aos="fade-right">
+              <h2 className="text-4xl font-semibold mb-6 text-white">The très chic Story</h2>
+              <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                Born from the shadows of Paris's haute couture scene, très chic emerged as a rebellious voice in fashion. Our founder, Élise Noir, envisioned a brand that would challenge the norms of traditional design.
+              </p>
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Since 2010, we've been crafting bold, edgy pieces that empower individuals to express their inner darkness with unparalleled style. Our designs are not just clothes; they're a statement, an attitude, a way of life.
+              </p>
+              <button className="mt-8 px-8 py-3 bg-white text-black rounded-full hover:bg-gray-200 transition-colors duration-300">
+                Discover Our Legacy
+              </button>
+            </div>
+            <div className="md:w-1/2 md:pl-12" data-aos="fade-left">
+              <img src="/images/atelier.jpeg" alt="très chic Atelier" className="w-full h-auto rounded-lg shadow-2xl" />
+            </div>
+          </div>
+        </section>
+
+        {/* Newsletter */}
+        <section className="bg-gradient-to-r from-gray-900 to-black p-12 rounded-lg relative overflow-hidden" data-aos="fade-up">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 bg-black opacity-50"></div>
+            <img src="/images/dark-fabric.jpeg" alt="Dark Fabric Texture" className="w-full h-full object-cover" />
+          </div>
+          <div className="relative z-10">
+            <h2 className="text-4xl font-semibold mb-6 text-white">Join the Dark Collective</h2>
+            <p className="text-gray-300 mb-8 text-lg">Subscribe to our newsletter for exclusive offers, early access to new collections, and dark fashion inspiration delivered straight to your inbox.</p>
+            <form className="flex flex-col sm:flex-row max-w-lg mx-auto">
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="bg-white bg-opacity-20 text-white px-6 py-4 rounded-l-full sm:rounded-r-none mb-4 sm:mb-0 focus:outline-none focus:ring-2 focus:ring-gray-400 flex-grow"
               />
-              <NewsletterButton type="submit">Join Now</NewsletterButton>
-            </NewsletterForm>
-          </NewsletterSection>
+              <button
+                type="submit"
+                className="bg-white text-black px-8 py-4 rounded-r-full sm:rounded-l-none hover:bg-gray-200 transition-colors duration-300"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
 
-          <Footer>
-            <p>© 2024 Creative Minds Agency. Crafting the future of advertising since 1985.</p>
-            <RotatingLogo src="/images/logo.png" alt="Creative Minds Agency Logo" />
-          </Footer>
-        </Content>
-      </Page>
-    </ThemeProvider>
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-500 py-12">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; 2024 très chic. All rights reserved.</p>
+          <div className="mt-4 flex justify-center space-x-6">
+            <a href="#" className="hover:text-white transition-colors">Instagram</a>
+            <a href="#" className="hover:text-white transition-colors">Facebook</a>
+            <a href="#" className="hover:text-white transition-colors">Twitter</a>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
-};
+}
 
-export default LandingPage;
+export default App;

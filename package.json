@@ -6,6 +6,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "aos": "^2.3.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
@@ -14,7 +15,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "deployprod": "npm run build && zip -r dist.zip build && scp dist.zip the-bear:/home/ubuntu/retrovibe/ && ssh the-bear -t \"cd retrovibe && rm -r build/ && unzip dist.zip\"",
+    "deployprod": "npm run build && zip -r dist.zip build && scp dist.zip the-bear:/home/ubuntu/treschic/ && ssh the-bear -t \"cd treschic && rm -r build/ && unzip dist.zip\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -36,5 +37,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
   }
 }
